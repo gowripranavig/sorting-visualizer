@@ -380,6 +380,9 @@ function prevStep() {
 document.getElementById("speed").addEventListener("input", (e) => {
     speed = 1050 - e.target.value;
 });
+document.getElementById("size").addEventListener("input", (e) => {
+    generateArray(e.target.value);
+});
 
 async function play() {
     isPlaying = true;
@@ -455,17 +458,6 @@ function showComplexity(type) {
 
 // run on load
 generateArray();
-
-function updateArraySize() {
-    let size = document.getElementById("sizeInput").value;
-
-    if (size < 5 || size > 100) {
-        alert("Please enter a size between 5 and 100");
-        return;
-    }
-
-    generateArray(parseInt(size));
-}
 
 function showDescription(type) {
     const desc = document.getElementById("description");
