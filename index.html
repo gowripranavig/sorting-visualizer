@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sorting Visualizer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>Sorting Visualizer</h1>
+
+<div class="controls">
+    <button id="newBtn" onclick="generateArray()">🔄 New Array</button>
+
+    <select id="algorithm">
+        <option value="bubble">Bubble Sort</option>
+        <option value="selection">Selection Sort</option>
+        <option value="insertion">Insertion Sort</option>
+        <option value="quick">Quick Sort</option>
+        <option value="merge">Merge Sort</option>
+        <option value="heap">Heap Sort</option>
+    </select>
+
+    <button id="startBtn" onclick="startSort()">▶ Start</button>
+    <button onclick="prevStep()">⏮ Prev</button>
+    <button onclick="nextStep()">⏭ Next</button>
+    <button onclick="togglePause()">⏸ Pause</button>
+
+    <label>Speed</label>
+    <input type="range" id="speed" min="50" max="1000" value="300">
+    <label>Size</label>
+    <input type="range" min="10" max="50" value="20" id="size">
+</div>
+<div class="legend">
+  <span style="color:red">■ Comparing</span>
+  <span style="color:yellow">■ Swapping</span>
+  <span style="color:lime">■ Sorted</span>
+</div>
+<div id="description"></div>
+
+<div id="array"></div>
+
+<div id="complexity"></div>
+
+</body>
+<script src="script.js"></script>
+</html>
