@@ -6,8 +6,8 @@ let isPaused = false;
 let isPlaying = false;
 
 function generateArray(size = 30) {
-    isPaused = false;
     isPlaying = false;
+    isPaused = false;
     currentStep = 0;
     
     const customInput = document.getElementById("customInput");
@@ -17,39 +17,25 @@ function generateArray(size = 30) {
     for (let i = 0; i < size; i++) {
         array.push(Math.floor(Math.random() * 300) + 20);
     }
-    document.querySelectorAll(".bar").forEach(bar => {
-        bar.classList.remove("sorted");
-    });
     renderBars();
 }
 
-/**
- * Handles manual array input from the user
- */
 function setCustomArray(manualData = null) {
-    // If manualData is provided (from the slider logic), use it. 
-    // Otherwise, grab from the input field.
+    isPlaying = false;
+    isPaused = false;
+
     const input = manualData || document.getElementById("customInput").value;
-    
     if (!input) return;
 
     const customArray = input.split(',')
         .map(num => parseInt(num.trim()))
         .filter(num => !isNaN(num) && num > 0);
 
-    if (customArray.length === 0) {
-        if (!manualData) alert("Please enter valid numbers (e.g., 50, 20, 100).");
-        return;
-    }
+    if (customArray.length === 0) return;
 
-    // Reset state
-    isPaused = false;
-    isPlaying = false;
+    array = customArray;
     currentStep = 0;
     steps = [];
-    array = customArray;
-
-    document.querySelectorAll(".bar").forEach(bar => bar.classList.remove("sorted"));
     renderBars();
 }
 
@@ -57,14 +43,15 @@ function renderBars(activeIndex = -1, swapIndex = -1) {
     const container = document.getElementById("array");
     container.innerHTML = "";
 
-    // Dynamic width calculation so small arrays look better
-    const barWidth = Math.max(20, Math.min(60, Math.floor(container.clientWidth / (array.length * 1.5))));
+    // Calculate dynamic width based on container size
+    const containerWidth = container.clientWidth || 800;
+    const barWidth = Math.max(15, Math.floor((containerWidth / array.length) - 4));
 
     array.forEach((value, index) => {
         const bar = document.createElement("div");
         bar.classList.add("bar");
-        bar.style.height = value + "px";
-        bar.style.width = barWidth + "px";
+        bar.style.height = `${value}px`;
+        bar.style.width = `${barWidth}px`;
 
         const label = document.createElement("span");
         label.classList.add("bar-label");
@@ -78,147 +65,51 @@ function renderBars(activeIndex = -1, swapIndex = -1) {
     });
 }
 
-// --- Sorting Algorithms (Logic remains the same) ---
+// ... (Keep your existing Sorting Algorithm functions: bubbleSortSteps, etc.) ...
 
-function bubbleSortSteps(arr) {
-    let temp = [...arr];
-    steps = [];
-    for (let i = 0; i < temp.length; i++) {
-        for (let j = 0; j < temp.length - i - 1; j++) {
-            steps.push({ array: [...temp], active: j, swap: j + 1 });
-            if (temp[j] > temp[j + 1]) {
-                [temp[j], temp[j + 1]] = [temp[j + 1], temp[j]];
-                steps.push({ array: [...temp], active: j, swap: j + 1 });
-            }
+document.getElementById("size").addEventListener("input", (e) => {
+    const sizeValue = parseInt(e.target.value);
+    if (sizeValue < 10) {
+        const userInput = prompt(`Enter ${sizeValue} numbers separated by commas:`);
+        if (userInput) {
+            document.getElementById("customInput").value = userInput;
+            setCustomArray(userInput);
+        } else {
+            generateArray(sizeValue);
         }
+    } else {
+        generateArray(sizeValue);
     }
+});
+
+document.getElementById("speed").addEventListener("input", (e) => {
+    speed = 1050 - e.target.value;
+});
+
+async function play() {
+    isPlaying = true;
+    for (let i = currentStep; i < steps.length; i++) {
+        while (isPaused) await new Promise(res => setTimeout(res, 100));
+        if (!isPlaying) break;
+
+        currentStep = i;
+        let step = steps[i];
+        array = step.array;
+        renderBars(step.active, step.swap);
+
+        if (i === steps.length - 1) {
+            document.querySelectorAll(".bar").forEach(b => b.classList.add("sorted"));
+            resetControls(false);
+        }
+        await new Promise(res => setTimeout(res, speed));
+    }
+    isPlaying = false;
 }
-
-function selectionSortSteps(arr) {
-    let temp = [...arr];
-    steps = [];
-    for (let i = 0; i < temp.length; i++) {
-        let min = i;
-        for (let j = i + 1; j < temp.length; j++) {
-            steps.push({ array: [...temp], active: j, swap: min });
-            if (temp[j] < temp[min]) min = j;
-        }
-        [temp[i], temp[min]] = [temp[min], temp[i]];
-        steps.push({ array: [...temp], active: i, swap: min });
-    }
-}
-
-function insertionSortSteps(arr) {
-    let temp = [...arr];
-    steps = [];
-    for (let i = 1; i < temp.length; i++) {
-        let key = temp[i];
-        let j = i - 1;
-        while (j >= 0 && temp[j] > key) {
-            steps.push({ array: [...temp], active: j, swap: j + 1 });
-            temp[j + 1] = temp[j];
-            j--;
-        }
-        temp[j + 1] = key;
-        steps.push({ array: [...temp], active: j + 1, swap: i });
-    }
-}
-
-function quickSortSteps(arr) {
-    let temp = [...arr];
-    steps = [];
-    function quickSort(low, high) {
-        if (low < high) {
-            let pi = partition(low, high);
-            quickSort(low, pi - 1);
-            quickSort(pi + 1, high);
-        }
-    }
-    function partition(low, high) {
-        let pivot = temp[high];
-        let i = low - 1;
-        for (let j = low; j < high; j++) {
-            steps.push({ array: [...temp], active: j, swap: high });
-            if (temp[j] < pivot) {
-                i++;
-                [temp[i], temp[j]] = [temp[j], temp[i]];
-                steps.push({ array: [...temp], active: i, swap: j });
-            }
-        }
-        [temp[i + 1], temp[high]] = [temp[high], temp[i + 1]];
-        steps.push({ array: [...temp], active: i + 1, swap: high });
-        return i + 1;
-    }
-    quickSort(0, temp.length - 1);
-}
-
-function mergeSortSteps(arr) {
-    let temp = [...arr];
-    steps = [];
-    function mergeSort(l, r) {
-        if (l >= r) return;
-        let m = Math.floor((l + r) / 2);
-        mergeSort(l, m);
-        mergeSort(m + 1, r);
-        merge(l, m, r);
-    }
-    function merge(l, m, r) {
-        let left = temp.slice(l, m + 1);
-        let right = temp.slice(m + 1, r + 1);
-        let i = 0, j = 0, k = l;
-        while (i < left.length && j < right.length) {
-            if (left[i] <= right[j]) { temp[k] = left[i]; i++; }
-            else { temp[k] = right[j]; j++; }
-            steps.push({ array: [...temp], active: k, swap: -1 });
-            k++;
-        }
-        while (i < left.length) {
-            temp[k] = left[i]; i++;
-            steps.push({ array: [...temp], active: k, swap: -1 });
-            k++;
-        }
-        while (j < right.length) {
-            temp[k] = right[j]; j++;
-            steps.push({ array: [...temp], active: k, swap: -1 });
-            k++;
-        }
-    }
-    mergeSort(0, temp.length - 1);
-}
-
-function heapSortSteps(arr) {
-    let temp = [...arr];
-    steps = [];
-    function heapify(n, i) {
-        let largest = i;
-        let left = 2 * i + 1;
-        let right = 2 * i + 2;
-        if (left < n && temp[left] > temp[largest]) largest = left;
-        if (right < n && temp[right] > temp[largest]) largest = right;
-        if (largest !== i) {
-            [temp[i], temp[largest]] = [temp[largest], temp[i]];
-            steps.push({ array: [...temp], active: i, swap: largest });
-            heapify(n, largest);
-        }
-    }
-    let n = temp.length;
-    for (let i = Math.floor(n / 2) - 1; i >= 0; i--) heapify(n, i);
-    for (let i = n - 1; i > 0; i--) {
-        [temp[0], temp[i]] = [temp[i], temp[0]];
-        steps.push({ array: [...temp], active: 0, swap: i });
-        heapify(i, 0);
-    }
-}
-
-// --- Control Logic ---
 
 function startSort() {
-    document.getElementById("startBtn").disabled = true;
-    document.getElementById("newBtn").disabled = true;
-    document.getElementById("algorithm").disabled = true;
-    let algo = document.getElementById("algorithm").value;
-    
     if (isPlaying) return;
+    const algo = document.getElementById("algorithm").value;
+    resetControls(true);
 
     if (algo === "bubble") bubbleSortSteps(array);
     else if (algo === "selection") selectionSortSteps(array);
@@ -228,113 +119,16 @@ function startSort() {
     else if (algo === "heap") heapSortSteps(array);
 
     showComplexity(algo.charAt(0).toUpperCase() + algo.slice(1));
-    showDescription(algo.charAt(0).toUpperCase() + algo.slice(1));
-
     currentStep = 0;
-    isPaused = false;
     play();
 }
 
-function nextStep() {
-    if (currentStep < steps.length - 1) {
-        currentStep++;
-        let step = steps[currentStep];
-        array = step.array;
-        renderBars(step.active, step.swap);
-    }
+function resetControls(disabled) {
+    document.getElementById("startBtn").disabled = disabled;
+    document.getElementById("newBtn").disabled = disabled;
+    document.getElementById("algorithm").disabled = disabled;
 }
 
-function prevStep() {
-    if (currentStep > 0) {
-        currentStep--;
-        let step = steps[currentStep];
-        array = step.array;
-        renderBars(step.active, step.swap);
-    }
-}
-
-document.getElementById("speed").addEventListener("input", (e) => {
-    speed = 1050 - e.target.value;
-});
-
-/**
- * UPDATED Size Slider Listener
- */
-document.getElementById("size").addEventListener("input", (e) => {
-    const sizeValue = parseInt(e.target.value);
-    
-    if (sizeValue < 10) {
-        // Trigger manual input prompt if size is small
-        const userInput = prompt(`Size is ${sizeValue}. Enter ${sizeValue} numbers separated by commas:`);
-        if (userInput) {
-            setCustomArray(userInput);
-            // Sync the text input box too
-            document.getElementById("customInput").value = userInput;
-        } else {
-            generateArray(sizeValue);
-        }
-    } else {
-        generateArray(sizeValue);
-    }
-});
-
-async function play() {
-    isPlaying = true;
-    for (let i = currentStep; i < steps.length; i++) {
-        while (isPaused) {
-            await new Promise(res => setTimeout(res, 100));
-        }
-        currentStep = i;
-        let step = steps[i];
-        array = step.array;
-        renderBars(step.active, step.swap);
-
-        if (i === steps.length - 1) {
-            let bars = document.querySelectorAll(".bar");
-            for (let k = 0; k < bars.length; k++) {
-                bars[k].classList.add("sorted");
-                await new Promise(res => setTimeout(res, 30));
-            }
-            document.getElementById("startBtn").disabled = false;
-            document.getElementById("newBtn").disabled = false;
-            document.getElementById("algorithm").disabled = false;
-        }
-        await new Promise(res => setTimeout(res, speed));
-    }
-    isPlaying = false;
-}
-
-function togglePause() {
-    if (!isPlaying) return;
-    isPaused = !isPaused;
-    const btn = document.querySelector("button[onclick='togglePause()']");
-    btn.innerText = isPaused ? "▶ Resume" : "⏸ Pause";
-}
-
-function showComplexity(type) {
-    const div = document.getElementById("complexity");
-    const complex = {
-        "Bubble": "🟢 Best: O(n) | 🟡 Avg: O(n²) | 🔴 Worst: O(n²)",
-        "Selection": "🟢 Best: O(n²) | 🟡 Avg: O(n²) | 🔴 Worst: O(n²)",
-        "Insertion": "🟢 Best: O(n) | 🟡 Avg: O(n²) | 🔴 Worst: O(n²)",
-        "Quick": "🟢 Best: O(n log n) | 🟡 Avg: O(n log n) | 🔴 Worst: O(n²)",
-        "Merge": "🟢 Best: O(n log n) | 🟡 Avg: O(n log n) | 🔴 Worst: O(n log n)",
-        "Heap": "🟢 Best: O(n log n) | 🟡 Avg: O(n log n) | 🔴 Worst: O(n log n)"
-    };
-    div.innerHTML = complex[type] || "";
-}
-
-function showDescription(type) {
-    const desc = document.getElementById("description");
-    const descs = {
-        "Bubble": "Bubble Sort repeatedly swaps adjacent elements.",
-        "Selection": "Selection Sort selects minimum element each time.",
-        "Insertion": "Insertion Sort builds sorted array step by step.",
-        "Quick": "Quick Sort uses pivot and divide & conquer.",
-        "Merge": "Merge Sort divides and merges sorted halves.",
-        "Heap": "Heap Sort uses binary heap structure."
-    };
-    desc.innerText = descs[type] || "";
-}
+// ... (Keep togglePause, showComplexity, showDescription) ...
 
 generateArray();
