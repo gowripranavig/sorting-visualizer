@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sorting Visualizer</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -11,7 +13,7 @@
 <div class="controls">
     <div class="control-group">
         <button id="newBtn" onclick="generateArray()">🔄 New Array</button>
-        
+
         <select id="algorithm">
             <option value="bubble">Bubble Sort</option>
             <option value="selection">Selection Sort</option>
@@ -32,18 +34,19 @@
         <input type="range" id="speed" min="50" max="1000" value="750">
         
         <label>Size</label>
-        <input type="range" min="5" max="50" value="20" id="size">
+        <input type="range" id="size" min="5" max="50" value="20">
 
         <span class="divider">|</span>
-        <input type="text" id="customInput" placeholder="Custom: 50, 20, 100" style="width: 150px;">
+
+        <input type="text" id="customInput" placeholder="Custom: 10, 50, 30" title="Enter comma-separated numbers">
         <button id="customBtn" onclick="setCustomArray()">Set Array</button>
     </div>
 </div>
 
 <div class="legend">
-  <span style="color:red">■ Comparing</span>
-  <span style="color:yellow">■ Swapping</span>
-  <span style="color:lime">■ Sorted</span>
+  <span style="color:#ef4444">■ Comparing</span>
+  <span style="color:#eab308">■ Swapping</span>
+  <span style="color:#22c55e">■ Sorted</span>
 </div>
 
 <div id="description"></div>
