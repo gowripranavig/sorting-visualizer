@@ -380,8 +380,9 @@ function prevStep() {
 document.getElementById("speed").addEventListener("input", (e) => {
     speed = 1050 - e.target.value;
 });
-document.getElementById("size").addEventListener("input", (e) => {
-    generateArray(e.target.value);
+document.getElementById("size").addEventListener("input", function () {
+    let size = parseInt(this.value);
+    generateArray(size);
 });
 
 async function play() {
