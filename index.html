@@ -9,38 +9,49 @@
 <h1>Sorting Visualizer</h1>
 
 <div class="controls">
-    <button id="newBtn" onclick="generateArray()">🔄 New Array</button>
+    <div class="control-group">
+        <button id="newBtn" onclick="generateArray()">🔄 New Array</button>
+        
+        <select id="algorithm">
+            <option value="bubble">Bubble Sort</option>
+            <option value="selection">Selection Sort</option>
+            <option value="insertion">Insertion Sort</option>
+            <option value="quick">Quick Sort</option>
+            <option value="merge">Merge Sort</option>
+            <option value="heap">Heap Sort</option>
+        </select>
 
-    <select id="algorithm">
-        <option value="bubble">Bubble Sort</option>
-        <option value="selection">Selection Sort</option>
-        <option value="insertion">Insertion Sort</option>
-        <option value="quick">Quick Sort</option>
-        <option value="merge">Merge Sort</option>
-        <option value="heap">Heap Sort</option>
-    </select>
+        <button id="startBtn" onclick="startSort()">▶ Start</button>
+        <button onclick="togglePause()">⏸ Pause</button>
+        <button onclick="prevStep()">⏮ Prev</button>
+        <button onclick="nextStep()">⏭ Next</button>
+    </div>
 
-    <button id="startBtn" onclick="startSort()">▶ Start</button>
-    <button onclick="prevStep()">⏮ Prev</button>
-    <button onclick="nextStep()">⏭ Next</button>
-    <button onclick="togglePause()">⏸ Pause</button>
+    <div class="control-group">
+        <label>Speed</label>
+        <input type="range" id="speed" min="50" max="1000" value="750">
+        
+        <label>Size</label>
+        <input type="range" min="5" max="50" value="20" id="size">
 
-    <label>Speed</label>
-    <input type="range" id="speed" min="50" max="1000" value="300">
-    <label>Size</label>
-    <input type="range" min="10" max="50" value="20" id="size">
+        <span class="divider">|</span>
+        <input type="text" id="customInput" placeholder="Custom: 50, 20, 100" style="width: 150px;">
+        <button id="customBtn" onclick="setCustomArray()">Set Array</button>
+    </div>
 </div>
+
 <div class="legend">
   <span style="color:red">■ Comparing</span>
   <span style="color:yellow">■ Swapping</span>
   <span style="color:lime">■ Sorted</span>
 </div>
+
 <div id="description"></div>
 
 <div id="array"></div>
 
 <div id="complexity"></div>
 
-</body>
 <script src="script.js"></script>
+</body>
 </html>
