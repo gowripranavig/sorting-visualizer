@@ -10,7 +10,6 @@ function generateArray(size = 30) {
     isPlaying = false;
     currentStep = 0;
     
-    // Clear the custom input field when generating a random array
     const customInput = document.getElementById("customInput");
     if (customInput) customInput.value = "";
 
@@ -27,21 +26,19 @@ function generateArray(size = 30) {
 /**
  * Handles manual array input from the user
  */
-function setCustomArray() {
-    const input = document.getElementById("customInput").value;
+function setCustomArray(manualData = null) {
+    // If manualData is provided (from the slider logic), use it. 
+    // Otherwise, grab from the input field.
+    const input = manualData || document.getElementById("customInput").value;
     
-    // Convert string to array of numbers, filtering out non-numbers
+    if (!input) return;
+
     const customArray = input.split(',')
         .map(num => parseInt(num.trim()))
         .filter(num => !isNaN(num) && num > 0);
 
     if (customArray.length === 0) {
-        alert("Please enter valid numbers separated by commas (e.g., 50, 20, 100).");
-        return;
-    }
-
-    if (customArray.length > 20) {
-        alert("Please limit manual input to 20 numbers for the best visualization.");
+        if (!manualData) alert("Please enter valid numbers (e.g., 50, 20, 100).");
         return;
     }
 
@@ -52,9 +49,7 @@ function setCustomArray() {
     steps = [];
     array = customArray;
 
-    // Reset UI styling
     document.querySelectorAll(".bar").forEach(bar => bar.classList.remove("sorted"));
-    
     renderBars();
 }
 
@@ -62,12 +57,14 @@ function renderBars(activeIndex = -1, swapIndex = -1) {
     const container = document.getElementById("array");
     container.innerHTML = "";
 
+    // Dynamic width calculation so small arrays look better
+    const barWidth = Math.max(20, Math.min(60, Math.floor(container.clientWidth / (array.length * 1.5))));
+
     array.forEach((value, index) => {
         const bar = document.createElement("div");
         bar.classList.add("bar");
-
-        // Height is value + constant to ensure very small numbers are visible
         bar.style.height = value + "px";
+        bar.style.width = barWidth + "px";
 
         const label = document.createElement("span");
         label.classList.add("bar-label");
@@ -81,7 +78,7 @@ function renderBars(activeIndex = -1, swapIndex = -1) {
     });
 }
 
-// --- Sorting Algorithms ---
+// --- Sorting Algorithms (Logic remains the same) ---
 
 function bubbleSortSteps(arr) {
     let temp = [...arr];
@@ -260,8 +257,25 @@ document.getElementById("speed").addEventListener("input", (e) => {
     speed = 1050 - e.target.value;
 });
 
+/**
+ * UPDATED Size Slider Listener
+ */
 document.getElementById("size").addEventListener("input", (e) => {
-    generateArray(e.target.value);
+    const sizeValue = parseInt(e.target.value);
+    
+    if (sizeValue < 10) {
+        // Trigger manual input prompt if size is small
+        const userInput = prompt(`Size is ${sizeValue}. Enter ${sizeValue} numbers separated by commas:`);
+        if (userInput) {
+            setCustomArray(userInput);
+            // Sync the text input box too
+            document.getElementById("customInput").value = userInput;
+        } else {
+            generateArray(sizeValue);
+        }
+    } else {
+        generateArray(sizeValue);
+    }
 });
 
 async function play() {
@@ -323,5 +337,4 @@ function showDescription(type) {
     desc.innerText = descs[type] || "";
 }
 
-// Initial Call
 generateArray();
