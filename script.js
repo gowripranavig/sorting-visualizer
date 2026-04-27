@@ -6,14 +6,28 @@ let isPaused = false;
 let isPlaying = false;
 
 /**
- * Generates a random array of a given size
+ * Main function to generate the array. 
+ * If size < 20, it forces a user prompt.
  */
-function generateArray(size = 30) {
+function generateArray(sizeInput = null) {
     isPlaying = false;
     isPaused = false;
     currentStep = 0;
     
-    // Clear the custom input field when generating a random array
+    // Use the passed size or grab the current slider value
+    let size = sizeInput || parseInt(document.getElementById("size").value);
+
+    // If size is under 20, ask the user for specific numbers
+    if (size < 20) {
+        const userInput = prompt(`Size is ${size}. Please enter ${size} numbers separated by commas:`);
+        if (userInput) {
+            document.getElementById("customInput").value = userInput;
+            setCustomArray(userInput);
+            return; // Exit so we don't generate random bars
+        }
+    }
+
+    // Default: Clear text box and generate random numbers
     const customInput = document.getElementById("customInput");
     if (customInput) customInput.value = "";
 
@@ -22,48 +36,40 @@ function generateArray(size = 30) {
         array.push(Math.floor(Math.random() * 300) + 20);
     }
     
-    // Reset UI
     document.querySelectorAll(".bar").forEach(bar => bar.classList.remove("sorted"));
     renderBars();
 }
 
 /**
- * Handles manual array input from the user (from text box or prompt)
+ * Processes manual strings into the array
  */
 function setCustomArray(manualData = null) {
     isPlaying = false;
     isPaused = false;
 
-    // Use passed data (from prompt) or get from the input field
     const input = manualData || document.getElementById("customInput").value;
-    
     if (!input) return;
 
-    // Convert string to array of numbers
     const customArray = input.split(',')
         .map(num => parseInt(num.trim()))
         .filter(num => !isNaN(num) && num > 0);
 
-    if (customArray.length === 0) {
-        if (!manualData) alert("Please enter valid numbers separated by commas.");
-        return;
-    }
+    if (customArray.length === 0) return;
 
     array = customArray;
     currentStep = 0;
     steps = [];
-    
     renderBars();
 }
 
 /**
- * Renders bars to the DOM with dynamic width calculation
+ * Renders the bars with dynamic widths to fill the screen
  */
 function renderBars(activeIndex = -1, swapIndex = -1) {
     const container = document.getElementById("array");
     container.innerHTML = "";
 
-    // Calculate dynamic width based on container width so bars fill the space
+    // Calculate width so bars expand when there are fewer elements
     const containerWidth = container.clientWidth || 800;
     const barWidth = Math.max(15, Math.floor((containerWidth / array.length) - 4));
 
@@ -302,21 +308,9 @@ document.getElementById("speed").addEventListener("input", (e) => {
     speed = 1050 - e.target.value;
 });
 
-// Listener for the Size Slider to handle prompt logic
+// Listener for the Size Slider: triggers the centralized generation logic
 document.getElementById("size").addEventListener("input", (e) => {
-    const sizeValue = parseInt(e.target.value);
-    
-    if (sizeValue < 20) {
-        const userInput = prompt(`Size is ${sizeValue}. Enter ${sizeValue} numbers separated by commas:`);
-        if (userInput) {
-            document.getElementById("customInput").value = userInput;
-            setCustomArray(userInput);
-        } else {
-            generateArray(sizeValue);
-        }
-    } else {
-        generateArray(sizeValue);
-    }
+    generateArray(parseInt(e.target.value));
 });
 
 // --- UI Helpers ---
@@ -347,5 +341,5 @@ function showDescription(type) {
     desc.innerText = descs[type] || "";
 }
 
-// Initial Call
-generateArray(20);
+// Initial call to set up the board on load
+generateArray();
