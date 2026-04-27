@@ -13,7 +13,7 @@ h1 {
 
 .controls {
     display: flex;
-    flex-direction: column; /* Stack rows for better spacing */
+    flex-direction: column;
     gap: 15px;
     justify-content: center;
     align-items: center;
@@ -60,16 +60,28 @@ button:disabled {
     cursor: not-allowed;
 }
 
-/* Custom Input Styling */
+/* Updated Custom Input Styling */
 #customInput {
-    background: #334155;
+    background: #0f172a; /* Darker to stand out from the panel */
     color: white;
-    border: 1px solid #475569;
+    border: 1px solid #334155;
     width: 180px;
+    transition: border-color 0.2s;
+}
+
+#customInput:focus {
+    border-color: #38bdf8;
+    outline: none;
 }
 
 #customInput::placeholder {
-    color: #94a3b8;
+    color: #64748b;
+}
+
+/* Slider Color */
+input[type="range"] {
+    cursor: pointer;
+    accent-color: #38bdf8;
 }
 
 .divider {
@@ -83,7 +95,7 @@ button:disabled {
     justify-content: center;
     align-items: flex-end;
     height: 400px;
-    margin-top: 40px; /* Space for labels */
+    margin-top: 50px; /* Extra space for labels */
 }
 
 .bar {
@@ -95,21 +107,24 @@ button:disabled {
     justify-content: center;
     position: relative;
     background: linear-gradient(to top, #3b82f6, #38bdf8);
-    transition: height 0.3s ease, background 0.3s;
+    /* width is now transitioned to handle the dynamic width logic */
+    transition: height 0.3s ease, width 0.3s ease, background 0.3s;
 }
 
 .bar-label {
     position: absolute;
     top: -25px;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: bold;
     color: #cbd5e1;
+    width: 100%; /* Ensures label centers even on wide bars */
+    text-align: center;
 }
 
 /* Colors for animation */
-.active { background: #ef4444 !important; box-shadow: 0 0 15px #ef4444; } /* Red */
-.swap { background: #eab308 !important; box-shadow: 0 0 15px #eab308; }   /* Yellow */
-.sorted { background: #22c55e !important; }                              /* Lime */
+.active { background: #ef4444 !important; box-shadow: 0 0 15px #ef4444; } 
+.swap { background: #eab308 !important; box-shadow: 0 0 15px #eab308; } 
+.sorted { background: #22c55e !important; } 
 
 #complexity {
     margin-top: 20px;
@@ -135,5 +150,5 @@ button:disabled {
 
 .bar:hover {
     opacity: 0.8;
-    transform: scaleX(1.1);
+    filter: brightness(1.2);
 }
