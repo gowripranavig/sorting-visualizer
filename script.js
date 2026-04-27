@@ -4,6 +4,8 @@ let currentStep = 0;
 let speed = 300;
 let isPaused = false;
 let isPlaying = false;
+let operationCount = 0;
+let startTime = 0;
 
 function generateArray(size = 30) {
     isPaused = false;
@@ -57,6 +59,7 @@ function bubbleSortSteps(arr) {
                 active: j,
                 swap: j + 1
             });
+            operationCount++;
 
             if (temp[j] > temp[j + 1]) {
                 [temp[j], temp[j + 1]] = [temp[j + 1], temp[j]];
@@ -67,6 +70,7 @@ function bubbleSortSteps(arr) {
                     active: j,
                     swap: j + 1
                 });
+                operationCount++;
             }
         }
     }
@@ -86,6 +90,7 @@ function selectionSortSteps(arr) {
                 active: j,
                 swap: min
             });
+            operationCount++;
 
             if (temp[j] < temp[min]) {
                 min = j;
@@ -99,6 +104,7 @@ function selectionSortSteps(arr) {
             active: i,
             swap: min
         });
+        operationCount++;
     }
 }
 
@@ -117,6 +123,7 @@ function insertionSortSteps(arr) {
                 active: j,
                 swap: j + 1
             });
+            operationCount++;
 
             temp[j + 1] = temp[j];
             j--;
@@ -129,6 +136,7 @@ function insertionSortSteps(arr) {
             active: j + 1,
             swap: i
         });
+        operationCount++;
     }
 }
 
@@ -155,6 +163,7 @@ function quickSortSteps(arr) {
                 active: j,
                 swap: high
             });
+            operationCount++;
 
             if (temp[j] < pivot) {
                 i++;
@@ -165,6 +174,7 @@ function quickSortSteps(arr) {
                     active: i,
                     swap: j
                 });
+                operationCount++;
             }
         }
 
@@ -175,6 +185,7 @@ function quickSortSteps(arr) {
             active: i + 1,
             swap: high
         });
+        operationCount++;
 
         return i + 1;
     }
@@ -216,6 +227,7 @@ function mergeSortSteps(arr) {
                 active: k,
                 swap: -1
             });
+            operationCount++;
 
             k++;
         }
@@ -229,6 +241,7 @@ function mergeSortSteps(arr) {
                 active: k,
                 swap: -1
             });
+            operationCount++;
 
             k++;
         }
@@ -242,6 +255,7 @@ function mergeSortSteps(arr) {
                 active: k,
                 swap: -1
             });
+            operationCount++;
 
             k++;
         }
@@ -294,12 +308,15 @@ function heapSortSteps(arr) {
             active: 0,
             swap: i
         });
+        operationCount++;
 
         heapify(i, 0);
     }
 }
 
 function startSort() {
+    operationCount = 0;
+    startTime = performance.now();
     document.getElementById("startBtn").disabled = true;
     document.getElementById("newBtn").disabled = true;
     document.getElementById("algorithm").disabled = true;
@@ -391,6 +408,11 @@ async function play() {
         bars[k].classList.add("sorted");
         await new Promise(res => setTimeout(res, 30));
     }
+            let endTime = performance.now();
+let totalTime = ((endTime - startTime) / 1000).toFixed(2);
+
+document.getElementById("complexity").innerHTML += 
+    `<br>⏱ Time: ${totalTime}s | 🔄 Steps: ${operationCount}`;
     document.getElementById("startBtn").disabled = false;
     document.getElementById("newBtn").disabled = false;
     document.getElementById("algorithm").disabled = false;
